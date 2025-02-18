@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ktor-mysql
+    environment:
+      environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_USER: root
+
+      MYSQL_DATABASE: account
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+  app:
+    build: .
+    container_name: ktor-app
+    depends_on:
+      - mysql
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/account
+      DB_USER: root
+      DB_PASSWORD: ""
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./build/libs:/app/libs
+volumes:
+  mysql_data:

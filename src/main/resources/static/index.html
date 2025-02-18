@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autorizador Caju</title>
+    <script type="application/javascript">
+
+
+        function balance() {
+            sendGET("http://localhost:8080/balance")
+                .then(balances => {
+                    if (balances) {
+                        document.getElementById("meal").innerText = `MEAL: $${balances.MEAL.toFixed(2)}`;
+                        document.getElementById("food").innerText = `FOOD: $${balances.FOOD.toFixed(2)}`;
+                        document.getElementById("cash").innerText = `CASH: $${balances.CASH.toFixed(2)}`;
+                    }
+                })
+        }
+
+        function authorize() {
+            const transaction = transactions();
+            sendPOST("http://localhost:8080/authorize", transaction)
+                .then(response => {
+                    responses(response);
+                    balance();
+                })
+        }
+
+        function transactions() {
+            return {
+                accountId: getValue("accountId"),
+                amount: parseFloat(getValue("amount")),
+                mcc: getValue("mcc"),
+                merchant: getValue("merchant")
+            };
+        }
+
+        function getValue(controlName) {
+            return document.authorizeForm[controlName].value;
+        }
+
+        function responses(response) {
+            const resultCode = response.code;
+            if(resultCode == "00"){
+                document.getElementById("response").innerText = "Aprovado"
+            }else if(resultCode == "51"){
+                document.getElementById("response").innerText = "Saldo Insuficiente"
+            }
+        }
+
+        function sendPOST(url, data) {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+        }
+
+        function sendGET(url) {
+            return fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then(response => response.json())
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            balance();
+        });
+    </script>
+</head>
+
+<style>
+    input {
+        align-items: center;
+        background-color: #fee6e3;
+        border: 2px solid #111;
+        border-radius: 8px;
+        color: #111;
+        font-family: Inter,sans-serif;
+        font-size: 16px;
+        line-height: 24px;
+        max-width: 80%;
+        text-align: left;
+    }
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Inter,sans-serif;
+        font-size: 18px;
+        background-color: #D1E9F6;
+    }
+
+    h3 {
+        font-size: 1.4em;
+        margin: 0;
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        vertical-align: top;
+    }
+    .carteira {
+        display: grid;
+        grid-template-areas:
+                "title title title"
+                "meal food cash";
+    }
+    p{
+        padding: 20px;
+        background-color: #F7D8D6;
+        color: #000409;
+        border: 2px solid #111;
+        border-radius: 8px;
+        max-width: fit-content;
+
+    }
+
+
+</style>
+<body>
+<h1>Autorizador Caju</h1>
+
+<div class="carteira">
+    <p id="meal">MEAL: ...</p>
+    <p id="food">FOOD: ...</p>
+    <p id="cash">CASH: ...</p>
+</div> <br><br>
+
+<form name="authorizeForm" action="javascript:authorize()">
+
+    <label for="accountId">AccountId:</label>
+    <input type="text" id="accountId" name="accountId" ><br><br>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" step="0.01" ><br><br>
+
+    <label for="mcc">MCC:</label>
+    <input type="text" id="mcc" name="mcc" ><br><br>
+
+    <label for="merchant">Merchant:</label>
+    <input type="text" id="merchant" name="merchant" ><br><br>
+
+    <input type="submit" value="Autorizar">
+
+</form>
+<hr>
+<div>
+    <p id="response">Nenhuma transação</p>
+</div>
+
+</body>
+</html>
