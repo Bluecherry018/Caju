@@ -1,5 +1,5 @@
 package com.example.model
-
+import com.example.configureDatabases
 import com.example.configureRouting
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -13,6 +13,8 @@ import kotlin.test.*
 import kotlin.test.assertEquals
 import kotlin.math.log
 import io.ktor.client.statement.*
+import io.mockk.every
+import io.mockk.mockk
 
 
 class ApplicationTest {
@@ -20,7 +22,10 @@ class ApplicationTest {
     // Teste para de acordo com mcc
     @Test
     fun testAuthorizeOK() = testApplication {
-        val repository = FakeAccountRepository()
+        application { configureDatabases() }
+
+        val repository = mockk<FakeAccountRepository>()
+
         application {
             configureSerialization(repository)
             configureRouting()
@@ -48,7 +53,8 @@ class ApplicationTest {
     // Teste do fallOut
     @Test
     fun testAuthorizeFallOut() = testApplication {
-        val repository = FakeAccountRepository()
+        application { configureDatabases() }
+        val repository = mockk<FakeAccountRepository>()
         application {
             configureSerialization(repository)
             configureRouting()
@@ -69,7 +75,6 @@ class ApplicationTest {
             setBody(account2)
         }
         assertEquals(HttpStatusCode.OK, response2.status)
-
         assertEquals("""{"code":"00"}""", response2.bodyAsText())
 
     }
@@ -77,7 +82,8 @@ class ApplicationTest {
     // Teste para verificar o mcc de acordo com o merchant
     @Test
     fun testAuthorizeError() = testApplication {
-        val repository = FakeAccountRepository()
+        application { configureDatabases() }
+        val repository = mockk<FakeAccountRepository>()
         application {
             configureSerialization(repository)
             configureRouting()
@@ -102,5 +108,5 @@ class ApplicationTest {
         assertEquals("""{"code":"51"}""", response3.bodyAsText())
 
     }
-
+//
 }
