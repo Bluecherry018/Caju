@@ -37,7 +37,7 @@ O desafio é composto por 4 etapas:
 
 ## Acessando a aplicação na web
 
-Caso queira acessar Front da aplicação vá no arquivo index.html 
+Caso queira acessar Front da aplicação vá no arquivo index.html(Lembre de rodar a aplicação, para acessar o index.html)
 
 <img width="1375" alt="Screenshot 2025-02-18 at 17 27 50" src="https://github.com/user-attachments/assets/f97a3303-17fd-4e59-8fcc-680e1278c397" />
 
